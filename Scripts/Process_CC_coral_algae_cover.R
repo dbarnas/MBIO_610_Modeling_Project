@@ -128,7 +128,8 @@ summary(lm(data = c.ma, sum_fg ~functional_group))
 # save dataframe to use in python?
 chem.comp.wide <- chem.comp %>%
   filter(CowTagID != "VSEEP") %>%
+  mutate(functional_group = if_else(functional_group == "ma_turf", "Macroalgae+Turf", functional_group)) %>%
   select(-c(M_C, Tryptophan_Like, Tyrosine_Like))
-# write_csv(chem.comp.wide, here("Data", "coral_algae_pcover_sgd_param.csv"))
+write_csv(chem.comp.wide, here("Data", "coral_algae_pcover_sgd_param.csv"))
 
 

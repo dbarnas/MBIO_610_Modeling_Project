@@ -125,3 +125,10 @@ anova(lm(data = c.ma, sum_fg ~functional_group))
 summary(lm(data = c.ma, sum_fg ~functional_group))
 # r2 ~ 0.69
 
+# save dataframe to use in python?
+chem.comp.wide <- chem.comp %>%
+  filter(CowTagID != "VSEEP") %>%
+  select(-c(M_C, Tryptophan_Like, Tyrosine_Like))
+# write_csv(chem.comp.wide, here("Data", "coral_algae_pcover_sgd_param.csv"))
+
+

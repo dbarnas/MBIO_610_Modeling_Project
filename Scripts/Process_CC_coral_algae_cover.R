@@ -98,6 +98,7 @@ chem.comp <- c.ma %>%
 
 ##### VISUALIZE RELATIONSHIPS #####
 plot1 <- chem.comp %>%
+  mutate(sum_fg = sum_fg/100) %>% # proportional cover as 0 to 1.0
   filter(CowTagID != "VSEEP") %>%
   select(-c(M_C, Tryptophan_Like, Tyrosine_Like)) %>%
   pivot_longer(cols = Salinity:VisibleHumidic_Like, names_to = "Parameters", values_to = "cv_values") %>%
@@ -129,7 +130,9 @@ summary(lm(data = c.ma, sum_fg ~functional_group))
 chem.comp.wide <- chem.comp %>%
   filter(CowTagID != "VSEEP") %>%
   mutate(functional_group = if_else(functional_group == "ma_turf", "Macroalgae+Turf", functional_group)) %>%
-  select(-c(M_C, Tryptophan_Like, Tyrosine_Like))
+  select(-c(M_C, Tryptophan_Like, Tyrosine_Like)) %>%
+  mutate(sum_fg = sum_fg/100,
+         total_pcover = total_pcover/100) # proportional benthic cover from 0 to 1.0
 write_csv(chem.comp.wide, here("Data", "coral_algae_pcover_sgd_param.csv"))
 
 

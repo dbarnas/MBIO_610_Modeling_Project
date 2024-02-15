@@ -133,8 +133,8 @@ chem.comp3 <- c.ma.t %>%
 plot1 <- chem.comp2 %>%
   mutate(sum_fg = sum_fg/100) %>% # proportional cover as 0 to 1.0
   filter(CowTagID != "VSEEP") %>%
-  select(-c(M_C, Tryptophan_Like, Tyrosine_Like)) %>%
-  pivot_longer(cols = Salinity:VisibleHumidic_Like, names_to = "Parameters", values_to = "cv_values") %>%
+  select(-c(Ammonia_umolL, HIX,VisibleHumidic_Like, M_C, Tryptophan_Like, Tyrosine_Like)) %>%
+  pivot_longer(cols = Salinity:NN_umolL, names_to = "Parameters", values_to = "cv_values") %>%
   ggplot(aes(x = cv_values, y = sum_fg, group = functional_group, color = functional_group)) +
   geom_point(size = 1) +
   geom_line() +
@@ -145,11 +145,11 @@ plot1 <- chem.comp2 %>%
   labs(x = "Coefficient of variation of parameter",
        y = "Proportional benthic cover",
        color = "Functional Group") +
-  scale_color_manual(values = c("green4", "purple3"),
+  scale_color_manual(values = c("green4", "orange"),
                      labels = c("Macroalgae+Turf", "Stony coral")) +
-  facet_wrap(~Parameters, scales = "free_x")
+  facet_wrap(~Parameters, scales = "free_x", ncol = 3)
 plot1
-ggsave(here("Output", "pCover_coral_algae_v_SGD_param.png"), plot1, device = "png", width = 8, height = 6)
+ggsave(here("Output", "pCover_coral_algae_v_SGD_param.png"), plot1, device = "png", width = 8, height = 8)
 
 plot1b <- c.ma %>%
   mutate(sum_fg = sum_fg/100) %>%

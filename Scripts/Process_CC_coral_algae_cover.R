@@ -14,7 +14,7 @@ comp <- read_csv(here("Data", "Species_Abundances_wide.csv"))
 fe <- read_csv(here("Data", "Species_FE.csv"))
 traits <- read_csv(here("Data", "Distinct_Taxa.csv"))
 chem <- read_csv(here("Data", "Nutrients_Processed_All.csv"))
-
+alpha <- read_csv(here("Data", "CowTag_to_AlphaTag.csv"))
 
 
 ##### PROCESS & VIEW DATA #####
@@ -134,22 +134,30 @@ plot1 <- chem.comp2 %>%
   mutate(sum_fg = sum_fg/100) %>% # proportional cover as 0 to 1.0
   filter(CowTagID != "VSEEP") %>%
   select(-c(Ammonia_umolL, HIX,VisibleHumidic_Like, M_C, Tryptophan_Like, Tyrosine_Like)) %>%
-  pivot_longer(cols = Salinity:NN_umolL, names_to = "Parameters", values_to = "cv_values") %>%
+  rename(`Nitrate+Nitrite (umol/L)` = NN_umolL,
+         `Phosphate (umol/L)` = Phosphate_umolL,
+         `Silicate (umol/L)` = Silicate_umolL) %>%
+  pivot_longer(cols = Salinity:`Nitrate+Nitrite (umol/L)`, names_to = "Parameters", values_to = "cv_values") %>%
   ggplot(aes(x = cv_values, y = sum_fg, group = functional_group, color = functional_group)) +
   geom_point(size = 1) +
   geom_line() +
   theme_bw() +
   theme(panel.grid = element_blank(),
         strip.background = element_rect(fill = "white"),
-        strip.text = element_text(face = "bold")) +
+        strip.text = element_text(face = "bold"),
+        legend.position = "top",
+        legend.text = element_text(size = 12),
+        axis.text.y = element_text(size = 10),
+        axis.text.x = element_text(size = 10, angle = 30, hjust = 1),
+        axis.title = element_text(size = 14)) +
   labs(x = "Coefficient of variation of parameter",
        y = "Proportional benthic cover",
        color = "Functional Group") +
   scale_color_manual(values = c("green4", "orange"),
                      labels = c("Macroalgae+Turf", "Stony coral")) +
-  facet_wrap(~Parameters, scales = "free_x", ncol = 3)
+  facet_wrap(~Parameters, scales = "free_x", ncol = 4)
 plot1
-ggsave(here("Output", "pCover_coral_algae_v_SGD_param.png"), plot1, device = "png", width = 8, height = 8)
+ggsave(here("Output", "pCover_coral_algae_v_SGD_param.png"), plot1, device = "png", width = 8, height = 6)
 
 plot1b <- c.ma %>%
   mutate(sum_fg = sum_fg/100) %>%
@@ -220,6 +228,26 @@ plot2_patch <- (plot2b + plot2c) / plot2d
 ggsave(here("Output", "pCover_coral_v_algae_v_turf.png"), plot2_patch, device = "png", width = 8, height = 8)
 
 
+
+## Two SPECIES total cover plot
+total.cover.plot <- c.ma.t %>%
+  left_join(alpha) %>%
+  #mutate(functional_group = if_else(functional_group == "ma_turf", "Macroalgae + Turf", functional_group)) %>%
+  mutate(sum_fg = sum_fg/100) %>%
+  ggplot(aes(x = AlphaTag, y = sum_fg, fill = functional_group)) +
+  geom_col(color = "black") +
+  theme_classic() +
+  theme(legend.position = "top",
+        axis.text = element_text(color = "black", size = 12),
+        axis.title = element_text(color = "black", size = 14),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 12)) +
+  scale_y_continuous(breaks = c(0,0.25,0.5,0.75,1), expand = c(0, 0)) +
+  labs(x = "Survey location", y = "Proportional abundance", fill = "Functional Group") +
+  geom_hline(yintercept = 1, linetype = "dashed", size = 0.8) +
+  scale_fill_manual(values = c(`Stony Coral` = "orange", 'Macroalgae' = "green4", "Turf" = "darkgrey"))
+total.cover.plot
+ggsave(here("Output", "Total_cover_plot.png"), total.cover.plot, device = "png", height = 6, width = 6)
 
 
 # relationship between stony coral and macroalgae+turf
